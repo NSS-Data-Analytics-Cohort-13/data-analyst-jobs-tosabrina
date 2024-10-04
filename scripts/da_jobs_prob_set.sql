@@ -1,3 +1,4 @@
+
 SELECT *
 FROM data_analyst_jobs
 
@@ -102,7 +103,12 @@ ORDER BY avg_star DESC;
 SELECT COUNT(title) AS title_count
 FROM data_analyst_jobs
 WHERE title LIKE '%Analyst%';
--- ANS: 1636
+-- ANS Pt. 1: 1636
+
+SELECT COUNT(DISTINCT title) AS title_count
+FROM data_analyst_jobs
+WHERE title LIKE '%Analyst%';
+-- ANS Pt. 2: 754
 
 --12. How many different job titles do not contain either the word ‘Analyst’ or the word ‘Analytics’? What word do these positions have in common?
 SELECT title 
@@ -116,11 +122,24 @@ WHERE title NOT LIKE '%Analyst%'
 --Disregard any postings where the domain is NULL. 
 --Order your results so that the domain with the greatest number of `hard to fill` jobs is at the top. 
  -- Which three industries are in the top 3 on this list? How many jobs have been listed for more than 3 weeks for each of the top 3?
- SELECT title, days_since_posting, domain, skill
+
+--Reworked:
+ SELECT 
+	DISTINCT domain AS industry
+	, COUNT(skill) AS sql_skill
  FROM data_analyst_jobs
  WHERE days_since_posting >21
  	AND domain IS NOT NULL
-	AND skill = 'SQL'
- ORDER BY days_since_posting DESC;
+	AND skill iLIKE '%sql%'
+GROUP BY industry
+ORDER BY sql_skill DESC, industry;
+
+--Doublechecking Answer:
+SELECT title, domain, skill, days_since_posting
+FROM data_analyst_jobs
+WHERE domain ='Internet and Software'
+	AND skill iLIKE '%sql%'
+	AND days_since_posting>21
+ORDER BY domain, days_since_posting;
  
- -- ANS: Consulting and Business Services, Computers and Electronics, Real Estate. All 3
+ -- ANS: Internet and Software (62), Banks and Financial Services (61), Consulting and Business Services (57).
