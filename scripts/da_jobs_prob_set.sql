@@ -18,7 +18,7 @@ LIMIT 10;
 
 --3. How many postings are in Tennessee? How many are there in either Tennessee or Kentucky?
 
-SELECT COUNT(location)
+SELECT COUNT(location) 
 FROM data_analyst_jobs
 WHERE location = 'TN';
 
@@ -58,17 +58,17 @@ FROM data_analyst_jobs
 GROUP BY location
 ORDER BY avg_star_rating DESC;
 
---ANS: NE (Nebraska)
+--ANS: NE (Nebraska) and 4.19
 
 --7.Select unique job titles from the data_analyst_jobs table. How many are there?
-SELECT COUNT(DISTINCT title)
+SELECT COUNT(DISTINCT title) AS unique_title
 FROM data_analyst_jobs;
 
 --ANS: 881
 
 --8.How many unique job titles are there for California companies?
 
-SELECT COUNT(DISTINCT title) 
+SELECT COUNT(DISTINCT title) AS unique_jobs
 FROM data_analyst_jobs
 WHERE location = 'CA';
 
@@ -77,30 +77,50 @@ WHERE location = 'CA';
 --9.Find the name of each company and its average star rating for all companies that have more than 5000 reviews across all locations. How many companies are there with more that 5000 reviews across all locations?
 SELECT 
 	company
-	, AVG(star_rating) AS avg_star
-	, review_count
+	, ROUND(AVG(star_rating, 2) AS avg_rating
 FROM data_analyst_jobs
 WHERE review_count >5000
-GROUP BY company, review_count;
+	AND company IS NOT NULL
+GROUP BY company
+ORDER BY avg_rating ASC;
 
---ANS: 46
+--ANS: 40
 
---10. Add the code to order the query in #9 from highest to lowest average star rating. Which company with more than 5000 reviews across all locations in the dataset has the highest star rating? What is that rating?
+-- 10. Add the code to order the query in #9 from highest to lowest average star rating. Which company with more than 5000 reviews across all locations in the dataset has the highest star rating? What is that rating?
 SELECT 
 	company
-	, AVG(star_rating) AS avg_star
+	, ROUND(AVG(star_rating, 2) AS avg_star
 	, review_count
+	, location
 FROM data_analyst_jobs
 WHERE review_count >5000
-GROUP BY company, review_count
+GROUP BY company, review_count, location
 ORDER BY avg_star DESC;
---ANS: Microsoft
+--ANS: General Motors (4.20)
 
 --11. Find all the job titles that contain the word ‘Analyst’. How many different job titles are there? 
+SELECT COUNT(title) AS title_count
+FROM data_analyst_jobs
+WHERE title LIKE '%Analyst%';
+-- ANS: 1636
 
 --12. How many different job titles do not contain either the word ‘Analyst’ or the word ‘Analytics’? What word do these positions have in common?
+SELECT title 
+FROM data_analyst_jobs
+WHERE title NOT LIKE '%Analyst%'
+	AND title NOT LIKE '%Analytics%';
+-- ANS: 39. Not case-sensitive 
+
 
 --**BONUS:** You want to understand which jobs requiring SQL are hard to fill. Find the number of jobs by industry (domain) that require SQL and have been posted longer than 3 weeks. 
 --Disregard any postings where the domain is NULL. 
 --Order your results so that the domain with the greatest number of `hard to fill` jobs is at the top. 
  -- Which three industries are in the top 3 on this list? How many jobs have been listed for more than 3 weeks for each of the top 3?
+ SELECT title, days_since_posting, domain, skill
+ FROM data_analyst_jobs
+ WHERE days_since_posting >21
+ 	AND domain IS NOT NULL
+	AND skill = 'SQL'
+ ORDER BY days_since_posting DESC;
+ 
+ -- ANS: Consulting and Business Services, Computers and Electronics, Real Estate. All 3
